@@ -1,0 +1,5 @@
+20:27:46,018 DEBUG main PostgreSQLDAOFactory:<init>:30 - Created entity manager factory for PostgreSQLDAOFactory
+20:27:46,018 DEBUG main PostgreSQLDAOFactory:getBidDAO:41 - Created BidDAO in PostgreSQLDAOFactory
+20:27:46,028 DEBUG main PostgreSQLDAOFactory:getLotDAO:46 - Created LotDAO in PostgreSQLDAOFactory
+20:27:46,028 DEBUG main PostgreSQLDAOFactory:getUserDAO:51 - Created UserDAO in PostgreSQLDAOFactory
+20:27:51,036 DEBUG main BidDAO:select:45 - Selected all rows by LotDAO

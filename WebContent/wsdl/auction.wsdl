@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="AuctionService" targetNamespace="http://service.auction/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://service.auction/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+  <wsdl:types>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema">
+  <import namespace="http://service.auction/" schemaLocation="auction_schema1.xsd"/>
+</schema>
+  </wsdl:types>
+  <wsdl:message name="cencelTheLot">
+    <wsdl:part name="parameters" element="tns:cencelTheLot">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getLotInfoResponse">
+    <wsdl:part name="parameters" element="tns:getLotInfoResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getLotsResponse">
+    <wsdl:part name="parameters" element="tns:getLotsResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="newBidResponse">
+    <wsdl:part name="parameters" element="tns:newBidResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="newBid">
+    <wsdl:part name="parameters" element="tns:newBid">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="newLotResponse">
+    <wsdl:part name="parameters" element="tns:newLotResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="registration">
+    <wsdl:part name="parameters" element="tns:registration">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getBidsOnLot">
+    <wsdl:part name="parameters" element="tns:getBidsOnLot">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="authenticationResponse">
+    <wsdl:part name="parameters" element="tns:authenticationResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="authentication">
+    <wsdl:part name="parameters" element="tns:authentication">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getBidsOnLotResponse">
+    <wsdl:part name="parameters" element="tns:getBidsOnLotResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="registrationResponse">
+    <wsdl:part name="parameters" element="tns:registrationResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getLots">
+    <wsdl:part name="parameters" element="tns:getLots">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="newLot">
+    <wsdl:part name="parameters" element="tns:newLot">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="cencelTheLotResponse">
+    <wsdl:part name="parameters" element="tns:cencelTheLotResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getLotInfo">
+    <wsdl:part name="parameters" element="tns:getLotInfo">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="AuctionSEI">
+    <wsdl:operation name="cencelTheLot">
+      <wsdl:input name="cencelTheLot" message="tns:cencelTheLot">
+    </wsdl:input>
+      <wsdl:output name="cencelTheLotResponse" message="tns:cencelTheLotResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="newLot">
+      <wsdl:input name="newLot" message="tns:newLot">
+    </wsdl:input>
+      <wsdl:output name="newLotResponse" message="tns:newLotResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="registration">
+      <wsdl:input name="registration" message="tns:registration">
+    </wsdl:input>
+      <wsdl:output name="registrationResponse" message="tns:registrationResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getBidsOnLot">
+      <wsdl:input name="getBidsOnLot" message="tns:getBidsOnLot">
+    </wsdl:input>
+      <wsdl:output name="getBidsOnLotResponse" message="tns:getBidsOnLotResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getLotInfo">
+      <wsdl:input name="getLotInfo" message="tns:getLotInfo">
+    </wsdl:input>
+      <wsdl:output name="getLotInfoResponse" message="tns:getLotInfoResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getLots">
+      <wsdl:input name="getLots" message="tns:getLots">
+    </wsdl:input>
+      <wsdl:output name="getLotsResponse" message="tns:getLotsResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="authentication">
+      <wsdl:input name="authentication" message="tns:authentication">
+    </wsdl:input>
+      <wsdl:output name="authenticationResponse" message="tns:authenticationResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="newBid">
+      <wsdl:input name="newBid" message="tns:newBid">
+    </wsdl:input>
+      <wsdl:output name="newBidResponse" message="tns:newBidResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="AuctionServiceSoapBinding" type="tns:AuctionSEI">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="cencelTheLot">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="cencelTheLot">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="cencelTheLotResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="newLot">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="newLot">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="newLotResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getBidsOnLot">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getBidsOnLot">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getBidsOnLotResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="registration">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="registration">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="registrationResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getLots">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getLots">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getLotsResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getLotInfo">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="getLotInfo">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getLotInfoResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="authentication">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="authentication">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="authenticationResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="newBid">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="newBid">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="newBidResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="AuctionService">
+    <wsdl:port name="AuctionPort" binding="tns:AuctionServiceSoapBinding">
+      <soap:address location="http://localhost:8080/auction/services/AuctionPort"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

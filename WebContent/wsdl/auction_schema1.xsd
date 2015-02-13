@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://service.auction/" elementFormDefault="unqualified" targetNamespace="http://service.auction/" version="1.0">
+<xs:element name="authentication" type="tns:authentication"/>
+<xs:element name="authenticationResponse" type="tns:authenticationResponse"/>
+<xs:element name="cencelTheLot" type="tns:cencelTheLot"/>
+<xs:element name="cencelTheLotResponse" type="tns:cencelTheLotResponse"/>
+<xs:element name="getBidsOnLot" type="tns:getBidsOnLot"/>
+<xs:element name="getBidsOnLotResponse" type="tns:getBidsOnLotResponse"/>
+<xs:element name="getLotInfo" type="tns:getLotInfo"/>
+<xs:element name="getLotInfoResponse" type="tns:getLotInfoResponse"/>
+<xs:element name="getLots" type="tns:getLots"/>
+<xs:element name="getLotsResponse" type="tns:getLotsResponse"/>
+<xs:element name="newBid" type="tns:newBid"/>
+<xs:element name="newBidResponse" type="tns:newBidResponse"/>
+<xs:element name="newLot" type="tns:newLot"/>
+<xs:element name="newLotResponse" type="tns:newLotResponse"/>
+<xs:element name="registration" type="tns:registration"/>
+<xs:element name="registrationResponse" type="tns:registrationResponse"/>
+<xs:complexType name="cencelTheLot">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+<xs:complexType name="cencelTheLotResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+<xs:complexType name="newLot">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="arg0" type="tns:lotFromService"/>
+    </xs:sequence>
+  </xs:complexType>
+<xs:complexType name="lotFromService">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="code" type="xs:string"/>
+      <xs:element minOccurs="0" name="description" type="xs:string"/>
+      <xs:element minOccurs="0" name="finish" type="xs:string"/>
+      <xs:element minOccurs="0" name="name" type="xs:string"/>
+      <xs:element minOccurs="0" name="owner" type="xs:string"/>
+      <xs:element minOccurs="0" name="price" type="xs:string"/>
+      <xs:element minOccurs="0" name="state" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+<xs:complexType name="newLotResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+<xs:complexType name="registration">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="arg0" type="tns:userFrowService"/>
+    </xs:sequence>
+  </xs:complexType>
+<xs:complexType name="userFrowService">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="fname" type="xs:string"/>
+      <xs:element minOccurs="0" name="id" type="xs:string"/>
+      <xs:element minOccurs="0" name="lname" type="xs:string"/>
+      <xs:element minOccurs="0" name="login" type="xs:string"/>
+      <xs:element minOccurs="0" name="password" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+<xs:complexType name="registrationResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+<xs:complexType name="getBidsOnLot">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+<xs:complexType name="getBidsOnLotResponse">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:bidFromService"/>
+    </xs:sequence>
+  </xs:complexType>
+<xs:complexType name="bidFromService">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="bid" type="xs:string"/>
+      <xs:element minOccurs="0" name="bidder" type="xs:string"/>
+      <xs:element minOccurs="0" name="date" type="xs:string"/>
+      <xs:element minOccurs="0" name="lot" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+<xs:complexType name="getLotInfo">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+<xs:complexType name="getLotInfoResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:lotFromService"/>
+    </xs:sequence>
+  </xs:complexType>
+<xs:complexType name="getLots">
+    <xs:sequence/>
+  </xs:complexType>
+<xs:complexType name="getLotsResponse">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:lotFromService"/>
+    </xs:sequence>
+  </xs:complexType>
+<xs:complexType name="authentication">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="arg0" type="tns:userFrowService"/>
+    </xs:sequence>
+  </xs:complexType>
+<xs:complexType name="authenticationResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:userFrowService"/>
+    </xs:sequence>
+  </xs:complexType>
+<xs:complexType name="newBid">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="arg0" type="tns:bidFromService"/>
+    </xs:sequence>
+  </xs:complexType>
+<xs:complexType name="newBidResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

@@ -1,0 +1,81 @@
+@import "addons.scss";
+@import "auction.scss";
+
+/* This file prefixes all rules with the theme name to avoid causing conflicts with other themes. */
+/* The actual styles should be defined in auction.scss */
+.auction {
+  @include addons;
+  @include auction;
+  
+.v-label-lblAuction {
+    font-size: 30pt;
+    padding: 10px;
+	margin-bottom: 20px;
+}
+  
+.v-label-lblUser {
+    font-size: 15pt;
+    float: left;
+    font-color: orange;
+}
+
+.btnLogout .v-button-caption {
+    font-size: 12pt;
+	margin-left: 20px;
+    float: left;
+}
+
+.v-table-body td {
+    font-size: 12pt;
+}
+
+.v-gridlayout .v-button {
+	float: right;
+}
+
+.v-button-caption, .v-panel-caption {
+	font-size: 15pt;
+}
+
+.v-button-btnLogin {
+	margin-left: 130px;
+}
+
+.v-button-reglink {
+	margin-left: 100px;
+	margin-top: 5px;
+}
+
+.v-button-reglink .v-button-caption{
+    font-size: 12pt;
+}
+
+.v-panel .v-label {
+	font-size: 15pt;
+}
+
+.v-gridlayout-spacing-on {
+    padding-top: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+ 
+.v-formlayout-captioncell .v-caption {
+	font-size: 15pt;
+	color: #27408B;
+	padding-left: 12px;
+}
+ 
+input[type="text"], input[type="password"] {
+    font-size: 15pt;
+}
+
+.v-window-header {
+    font-size: 12pt;
+}
+
+.date input[type="text"] {
+	height: 25pt;
+}
+
+}
