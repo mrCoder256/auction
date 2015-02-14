@@ -1,14 +1,12 @@
 package auction.gui;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.Cookie;
 
 import org.apache.log4j.Logger;
 
+import auction.gui.Broadcaster.BroadcastListener;
 import auction.service.client.AuctionSEI;
 import auction.service.client.AuctionService;
 import auction.service.client.BidFromService;
@@ -23,7 +21,6 @@ import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
-import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -33,11 +30,10 @@ import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
+import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.PasswordField;
-import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -48,7 +44,7 @@ import com.vaadin.ui.themes.Reindeer;
 @SuppressWarnings("serial")
 @Theme("auction")
 @Push
-public class AuctionUI extends UI {
+public class AuctionUI extends UI implements BroadcastListener {
 	
 	private static final Logger log = Logger.getLogger(AuctionUI.class);
 	private VerticalLayout mainLayout;
@@ -62,30 +58,37 @@ public class AuctionUI extends UI {
 	private Button btnCancelTrades;
 	private Button btnNewBid;
 	private Label lblUser;
+
+	@Override
+	public void receiveBroadcast(final String message) {
+        access(new Runnable() {
+            @Override
+            public void run() {
+                Notification n = new Notification("Message received",
+                        message, Type.TRAY_NOTIFICATION);
+                n.show(getPage());
+            }
+        });
+	}
 	
 	@Override
 	protected void init(VaadinRequest request) {
-//		final VerticalLayout layout = new VerticalLayout();
-//		layout.setMargin(true);
-//		setContent(layout);
-//
-//		Button button = new Button("Click Me");
-//		button.addClickListener(new Button.ClickListener() {
-//			public void buttonClick(ClickEvent event) {
-//				layout.addComponent(new Label("Thank you for clicking"));
-//			}
-//		});
-//		layout.addComponent(button);
 		
 		AuctionService service = new AuctionService();
 		port = service.getAuctionPort();
 		
-//		authentication();
+		authentication();
 		start();
+		Broadcaster.register(this);
+	}
+
+	@Override
+	public void detach() {
+		Broadcaster.unregister(this);
+		super.detach();
 	}
 	
-private void authentication() {
-		
+	private void authentication() {
 		Cookie[] cookies = VaadinService.getCurrentRequest().getCookies();
 		for (Cookie cookie : cookies) { 
 			if ("userId".equals(cookie.getName())) { 
@@ -168,22 +171,24 @@ private void authentication() {
 				log.trace(response);
 				
 				if (response != null) {
+					//TODO Problem with cookies!
+					
 					userId = response.getId();
 					userName = response.getFname() + " " + response.getLname();
 					log.trace("userId; userName:" + userId + "; " + userName); 
 					
-					Cookie userIdCookie = new Cookie("userId", response.getId());
-					Cookie userNameCookie = new Cookie("userName", response.getFname() + " " + response.getLname());
-					
-					log.trace("getCurrentRequest: " + VaadinService.getCurrentRequest());
-					log.trace("getCurrentResponse: " + VaadinService.getCurrentResponse());
+//					Cookie userIdCookie = new Cookie("userId", response.getId());
+//					Cookie userNameCookie = new Cookie("userName", response.getFname() + " " + response.getLname());
+//					
+//					log.trace("getCurrentRequest: " + VaadinService.getCurrentRequest());
+//					log.trace("getCurrentResponse: " + VaadinService.getCurrentResponse());
 					
 					String path = VaadinService.getCurrentRequest().getContextPath();
 					log.trace("path=" + path); 
-					userIdCookie.setPath(path);
-					userNameCookie.setPath(path);
-				    VaadinService.getCurrentResponse().addCookie(userIdCookie);
-				    VaadinService.getCurrentResponse().addCookie(userNameCookie);
+//					userIdCookie.setPath(path);
+//					userNameCookie.setPath(path);
+//				    VaadinService.getCurrentResponse().addCookie(userIdCookie);
+//				    VaadinService.getCurrentResponse().addCookie(userNameCookie);
 				    
 					authWindow.close();
 					start();
@@ -268,7 +273,7 @@ private void authentication() {
 				        		regWindow.close();
 						    	authWindow.setVisible(true);
 				        	} else {
-				        		//TODO добавить проверку на повторение логина в БД при регистрации
+				        		//TODO пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 				        	}
 				        } catch (InvalidValueException e) {
 				            Notification.show(e.getMessage());
@@ -401,6 +406,9 @@ private void authentication() {
 		});
 		btnNewLot.addClickListener(new Button.ClickListener(){
 			public void buttonClick(ClickEvent event) {
+				Broadcaster.broadcast("New lot");
+				
+				/*
 				VerticalLayout regLayout = new VerticalLayout();
 				regLayout.setWidth("360px");
 				
@@ -477,10 +485,11 @@ private void authentication() {
 			            }
 			        	
 			        	/*
-			        	 * "конец торгов" должно быть временем будущим. Для сравнения времени,
-			        	 * введенного пользователем, нужно использовать "текущее время" + 2 секунды,
-			        	 * поскольку выполнение операций займет некоторое время.
+			        	 * "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ" пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ. пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ,
+			        	 * пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ" + 2 пїЅпїЅпїЅпїЅпїЅпїЅпїЅ,
+			        	 * пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ.
 			        	 */
+				/*
 			        	Calendar curTimePlusTwoSec = Calendar.getInstance();
 			        	curTimePlusTwoSec.add(Calendar.SECOND, 2);
 			        	if (finishDateField.getValue().compareTo(curTimePlusTwoSec.getTime()) == -1){
@@ -499,7 +508,7 @@ private void authentication() {
 			        	if (port.newLot(lot)) {
 			        		
 			        	} else {
-			        		//TODO добавить проверку на повторение логина в БД при регистрации
+			        		//TODO пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			        	}
 		        		newLotWindow.close();
 				    }
@@ -520,6 +529,7 @@ private void authentication() {
 				newLotWindow.center();
 				newLotWindow.setModal(true);
 		        addWindow(newLotWindow);
+		        */
 			}
 		});
 	}
@@ -560,21 +570,13 @@ private void authentication() {
 		btnCancelTrades.setVisible(false);
 		btnCancelTrades.addClickListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
-//				Thread t = new Thread(new Runnable(){
-//					public void run() {
-//						access(new Runnable() {
-//						    @Override
-//						    public void run() {
-//						    	log.trace("new thread starting");
-//						    	lblUser.setValue("Nayuk");
-//						    }
-//						});
-//					}});
-//				t.start();
+
+				Broadcaster.broadcast("Cancelled trade");
 				
-				
+				/*
 				log.trace("cancelling lot with id=" + ((Label)grLayout.getComponent(1, 0)).getValue());
 				port.cencelTheLot(Integer.parseInt(((Label)grLayout.getComponent(1, 0)).getValue()));
+				*/
 			}
 		});
 		
@@ -623,8 +625,8 @@ private void authentication() {
 				newBidLayout.addComponent(footerLayout);
 
 				/* 
-				 * currentMaxBid - текущая максимальная ставка на лот.
-				 * Если ставок еще не было, то currentMaxBid = стартовой цене лота
+				 * currentMaxBid - пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅ.
+				 * пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅ currentMaxBid = пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 				 */
 				final float currentMaxBid = (bidsTable.size() != 0) ?
 					(float) bidsTable.getItem(bidsTable.size()).getItemProperty("Bid").getValue() : 
@@ -673,7 +675,7 @@ private void authentication() {
 			        	if (port.newBid(bid)) {
 			        		
 			        	} else {
-			        		//TODO добавить проверку на повторение логина в БД при регистрации
+			        		//TODO пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			        	}
 			        	newBidWindow.close();
 				    }
@@ -694,7 +696,7 @@ private void authentication() {
 		List<LotFromService> response = port.getLots();
 		lotsTable.removeAllItems();
 		
-		int n = 0; //номер строки
+		int n = 0; //пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 		for (LotFromService el : response) {
 			lotsTable.addItem(new Object[]{el.getCode(), el.getName(), el.getFinish(), el.getState()}, n++);
 		}
@@ -714,12 +716,12 @@ private void authentication() {
 		((Label) grLayout.getComponent(1, 6)).setValue(response.getDescription());
 		((Label) grLayout.getComponent(1, 7)).setValue(response.getPrice());
 		
-		//если лот с Id=value залогиненого пользователя, то он может остановить торги по лоту
+		//пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ Id=value пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ
 		log.trace("selected lot is " + ((Label)grLayout.getComponent(1, 2)).getValue());
 		btnCancelTrades.setVisible((response.getOwner().equals(userName) &&
 				((Label)grLayout.getComponent(1, 2)).getValue().equals("ACTIVE")) ? true : false);
-		//если лот с Id=value еще активен, то на него можно ставить ставки.
-		//пользователь не может ставить ставки на свой лот
+		//пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ Id=value пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.
+		//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
 		btnNewBid.setVisible((((Label)grLayout.getComponent(1, 2)).getValue().equals("ACTIVE") &&
 			!((Label)grLayout.getComponent(1, 4)).getValue().equals(userName)) ? true : false);
 		
@@ -731,7 +733,7 @@ private void authentication() {
 
 		if (response != null) {
 			bidsTable.removeAllItems();		
-			int n = 1; //номер строки
+			int n = 1; //пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 			for (BidFromService el : response) {
 				bidsTable.addItem(new Object[]{el.getBid(), el.getDate(), el.getBidder()}, n++);
 			}
