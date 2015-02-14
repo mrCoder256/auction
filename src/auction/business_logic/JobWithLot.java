@@ -4,9 +4,12 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+import auction.gui.broadcaster.BroadcastType;
+import auction.gui.broadcaster.Broadcaster;
 import auction.integration.dao.DAOFactory;
 import auction.integration.dao.impl.LotDAO;
 import auction.integration.domain.Lot;
+import auction.service.LotFromService;
 
 public class JobWithLot implements Job {
 
@@ -25,7 +28,13 @@ public class JobWithLot implements Job {
 		if (lot.getBids().size() == 0)
 			lot.setState("NOT_SOLD");
 		else lot.setState("SOLD");
-		System.out.println(DAO.update(lot));
+
+		
+		LotFromService changedLot = new LotFromService();
+		changedLot.setCode(String.valueOf(lot.getId()));
+		changedLot.setState(lot.getState());
+		
+		Broadcaster.broadcast(BroadcastType.CHANGED_LOT_STATE, changedLot);
 	}
 
 }

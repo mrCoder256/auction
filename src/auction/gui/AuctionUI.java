@@ -1,12 +1,17 @@
 package auction.gui;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.Cookie;
 
 import org.apache.log4j.Logger;
 
-import auction.gui.Broadcaster.BroadcastListener;
+import auction.gui.broadcaster.BroadcastType;
+import auction.gui.broadcaster.Broadcaster;
+import auction.gui.broadcaster.IBroadcastListener;
 import auction.service.client.AuctionSEI;
 import auction.service.client.AuctionService;
 import auction.service.client.BidFromService;
@@ -21,6 +26,7 @@ import com.vaadin.data.validator.StringLengthValidator;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
+import com.vaadin.shared.ui.datefield.Resolution;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -30,10 +36,11 @@ import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
-import com.vaadin.ui.Notification.Type;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.PasswordField;
+import com.vaadin.ui.PopupDateField;
 import com.vaadin.ui.Table;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -44,7 +51,7 @@ import com.vaadin.ui.themes.Reindeer;
 @SuppressWarnings("serial")
 @Theme("auction")
 @Push
-public class AuctionUI extends UI implements BroadcastListener {
+public class AuctionUI extends UI implements IBroadcastListener {
 	
 	private static final Logger log = Logger.getLogger(AuctionUI.class);
 	private VerticalLayout mainLayout;
@@ -60,13 +67,39 @@ public class AuctionUI extends UI implements BroadcastListener {
 	private Label lblUser;
 
 	@Override
-	public void receiveBroadcast(final String message) {
+	public void receiveBroadcast(final BroadcastType type, final Object smthNew) {
         access(new Runnable() {
             @Override
             public void run() {
-                Notification n = new Notification("Message received",
-                        message, Type.TRAY_NOTIFICATION);
-                n.show(getPage());
+            	switch(type){
+            		case NEW_LOT:
+        				lotsTable.addItem(new Object[]{
+        						((LotFromService) smthNew).getCode(), 
+        						((LotFromService) smthNew).getName(), 
+        						((LotFromService) smthNew).getFinish(), 
+        						((LotFromService) smthNew).getState()}, 
+        						lotsTable.size() + 1);
+						break;
+					case NEW_BID:
+						Object rowId = lotsTable.getValue(); 
+						int selectedLotId = Integer.parseInt((String) lotsTable
+								.getContainerProperty(rowId,"Code").getValue());
+						
+						if (selectedLotId == Integer.parseInt(((BidFromService) smthNew)
+							.getLot())) {
+							bidsTable.addItem(new Object[]{
+	        						((BidFromService) smthNew).getBid(), 
+	        						((BidFromService) smthNew).getDate(), 
+	        						((BidFromService) smthNew).getBidder()}, 
+	        						bidsTable.size() + 1);
+						}
+						break;
+					case CHANGED_LOT_STATE:
+						//TODO
+						break;
+					default:
+						break;
+            	}
             }
         });
 	}
@@ -273,7 +306,7 @@ public class AuctionUI extends UI implements BroadcastListener {
 				        		regWindow.close();
 						    	authWindow.setVisible(true);
 				        	} else {
-				        		//TODO �������� �������� �� ���������� ������ � �� ��� �����������
+				        		//TODO current login already exist
 				        	}
 				        } catch (InvalidValueException e) {
 				            Notification.show(e.getMessage());
@@ -312,7 +345,6 @@ public class AuctionUI extends UI implements BroadcastListener {
 	private void start(){
 		initLayouts();
 		getAllLots();
-//		getBidsOnLot(2);	
 	}
 
 	private void initLayouts() {
@@ -401,14 +433,13 @@ public class AuctionUI extends UI implements BroadcastListener {
 
 		lotsTable.addItemClickListener(new ItemClickEvent.ItemClickListener() {
 			public void itemClick(ItemClickEvent event) {
-		    	onLotsTableClicked(Integer.parseInt((String) lotsTable.getItem(event.getItemId()).getItemProperty("Code").getValue()));
+		    	onLotsTableClicked(Integer.parseInt(
+		    			(String) lotsTable.getItem(event.getItemId())
+		    			.getItemProperty("Code").getValue()));
 			}
 		});
 		btnNewLot.addClickListener(new Button.ClickListener(){
 			public void buttonClick(ClickEvent event) {
-				Broadcaster.broadcast("New lot");
-				
-				/*
 				VerticalLayout regLayout = new VerticalLayout();
 				regLayout.setWidth("360px");
 				
@@ -489,7 +520,6 @@ public class AuctionUI extends UI implements BroadcastListener {
 			        	 * ���������� �������������, ����� ������������ "������� �����" + 2 �������,
 			        	 * ��������� ���������� �������� ������ ��������� �����.
 			        	 */
-				/*
 			        	Calendar curTimePlusTwoSec = Calendar.getInstance();
 			        	curTimePlusTwoSec.add(Calendar.SECOND, 2);
 			        	if (finishDateField.getValue().compareTo(curTimePlusTwoSec.getTime()) == -1){
@@ -505,11 +535,15 @@ public class AuctionUI extends UI implements BroadcastListener {
 			        	lot.setPrice(String.valueOf(convertedValue).replaceAll(",", ".").replaceAll(" ", ""));
 			        	lot.setDescription(descriptionArea.getValue());
 
-			        	if (port.newLot(lot)) {
+			        	LotFromService newlot = port.newLot(lot);
+			        	if (newlot == null) {
 			        		
 			        	} else {
 			        		//TODO �������� �������� �� ���������� ������ � �� ��� �����������
 			        	}
+			        	
+			        	Broadcaster.broadcast(BroadcastType.NEW_LOT, newlot);
+			        	log.trace("broadcasted new lot");
 		        		newLotWindow.close();
 				    }
 				});
@@ -529,7 +563,6 @@ public class AuctionUI extends UI implements BroadcastListener {
 				newLotWindow.center();
 				newLotWindow.setModal(true);
 		        addWindow(newLotWindow);
-		        */
 			}
 		});
 	}
@@ -570,13 +603,11 @@ public class AuctionUI extends UI implements BroadcastListener {
 		btnCancelTrades.setVisible(false);
 		btnCancelTrades.addClickListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
-
-				Broadcaster.broadcast("Cancelled trade");
-				
-				/*
-				log.trace("cancelling lot with id=" + ((Label)grLayout.getComponent(1, 0)).getValue());
-				port.cencelTheLot(Integer.parseInt(((Label)grLayout.getComponent(1, 0)).getValue()));
-				*/
+				int cancelledLotId = Integer.parseInt(((Label)grLayout.getComponent(1, 0))
+						.getValue()); 
+				log.trace("cancelling lot with id=" + cancelledLotId);
+				LotFromService cancelledLot = port.cencelTheLot(cancelledLotId);
+				Broadcaster.broadcast(BroadcastType.CHANGED_LOT_STATE, cancelledLot);
 			}
 		});
 		
@@ -672,11 +703,14 @@ public class AuctionUI extends UI implements BroadcastListener {
 			        	bid.setLot((String) lotsTable.getItem(lotsTable.getValue())
 			        		.getItemProperty("Code").getValue());
 
-			        	if (port.newBid(bid)) {
+			        	BidFromService newBid = port.newBid(bid);
+			        	if (newBid == null) {
 			        		
 			        	} else {
 			        		//TODO �������� �������� �� ���������� ������ � �� ��� �����������
 			        	}
+			        	
+			        	Broadcaster.broadcast(BroadcastType.NEW_BID, newBid);
 			        	newBidWindow.close();
 				    }
 				});
@@ -702,7 +736,7 @@ public class AuctionUI extends UI implements BroadcastListener {
 		}
 	}
 
-	protected void onLotsTableClicked(int value) {    
+	private void onLotsTableClicked(int value) {    
 		log.trace("getting lot with id=" + value);
 		
 		LotFromService response = port.getLotInfo(value);

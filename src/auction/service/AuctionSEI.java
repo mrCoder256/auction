@@ -11,13 +11,13 @@ public interface AuctionSEI {
 
 	public ArrayList<BidFromService> getBidsOnLot(int lotId);
 
+	public LotFromService newLot(LotFromService arg);
+
+	public BidFromService newBid(BidFromService arg);
+
 	public LotFromService getLotInfo(int lotId);
 
-	public boolean newBid(BidFromService arg);
-
-	public boolean newLot(LotFromService arg);
-
-	public boolean cencelTheLot(int lotId);
+	public LotFromService cencelTheLot(int lotId);
 
 	public int registration(UserFrowService arg);
 

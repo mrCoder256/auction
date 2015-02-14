@@ -12,6 +12,11 @@ import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.quartz.impl.StdSchedulerFactory;
 
+import auction.integration.dao.DAOFactory;
+import auction.integration.dao.impl.LotDAO;
+import auction.integration.domain.Lot;
+import auction.service.LotFromService;
+
 public class TradesScheduler {
 
 	public static void schedule(int lotId, Date finishTradesTime) throws SchedulerException {
@@ -33,12 +38,24 @@ public class TradesScheduler {
         sched.start();
 	}
 	
-	public static void cancel(int lotId) throws SchedulerException {
-        SchedulerFactory sf = new StdSchedulerFactory();
-        Scheduler sched = sf.getScheduler();
-        
+	public static LotFromService cancel(int lotId) throws SchedulerException {
         System.out.println("cancelling");
         
+        SchedulerFactory sf = new StdSchedulerFactory();
+        Scheduler sched = sf.getScheduler();
         sched.unscheduleJob(new TriggerKey("trigger"+lotId, "group1"));
+        
+		LotDAO DAO = (LotDAO) DAOFactory.getDAOFactory(DAOFactory.POSTGRESQL)
+				.getLotDAO();
+		Lot lot = (Lot) DAO.find(lotId);
+		lot.setState("CANCELLED");
+		if (!DAO.update(lot))
+			return null;
+		
+		LotFromService changedLot = new LotFromService();
+		changedLot.setCode(String.valueOf(lot.getId()));
+		changedLot.setState(lot.getState());
+		
+		return changedLot;
 	}
 }
