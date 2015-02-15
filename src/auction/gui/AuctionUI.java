@@ -1,9 +1,12 @@
 package auction.gui;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.Cookie;
 
@@ -20,6 +23,7 @@ import auction.service.client.UserFrowService;
 
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
+import com.vaadin.data.Item;
 import com.vaadin.data.Validator.InvalidValueException;
 import com.vaadin.data.util.converter.Converter.ConversionException;
 import com.vaadin.data.validator.StringLengthValidator;
@@ -69,8 +73,12 @@ public class AuctionUI extends UI implements IBroadcastListener {
 	@Override
 	public void receiveBroadcast(final BroadcastType type, final Object smthNew) {
         access(new Runnable() {
-            @Override
+            @SuppressWarnings("unchecked")
+			@Override
             public void run() {
+				Object rowId = lotsTable.getValue(); 
+				int selectedLotId = Integer.parseInt((String) lotsTable
+						.getContainerProperty(rowId,"Code").getValue());
             	switch(type){
             		case NEW_LOT:
         				lotsTable.addItem(new Object[]{
@@ -81,10 +89,6 @@ public class AuctionUI extends UI implements IBroadcastListener {
         						lotsTable.size() + 1);
 						break;
 					case NEW_BID:
-						Object rowId = lotsTable.getValue(); 
-						int selectedLotId = Integer.parseInt((String) lotsTable
-								.getContainerProperty(rowId,"Code").getValue());
-						
 						if (selectedLotId == Integer.parseInt(((BidFromService) smthNew)
 							.getLot())) {
 							bidsTable.addItem(new Object[]{
@@ -95,7 +99,24 @@ public class AuctionUI extends UI implements IBroadcastListener {
 						}
 						break;
 					case CHANGED_LOT_STATE:
-						//TODO
+						String changedLotId = ((LotFromService) smthNew).getCode();
+						Item currentRow = null;
+			            for (Iterator<?> it = lotsTable.getItemIds().iterator(); it.hasNext(); )                 {
+			            	currentRow = lotsTable.getItem(it.next());
+			                if (changedLotId.equalsIgnoreCase(
+			                		(String) currentRow.getItemProperty("Code").getValue())) {
+			                	currentRow.getItemProperty("State").setValue(
+			                			((LotFromService) smthNew).getState());
+							}
+			            }
+			            if (selectedLotId == Integer.parseInt(((LotFromService) smthNew)
+								.getCode())) {
+			    			((Label) grLayout.getComponent(1, 2))
+			    					.setValue(((LotFromService) smthNew).getState());
+			    			((Label) grLayout.getComponent(1, 5))
+			    					.setValue("Trades is finished");
+			    			btnCancelTrades.setVisible(false);
+			            }
 						break;
 					default:
 						break;
@@ -350,7 +371,6 @@ public class AuctionUI extends UI implements IBroadcastListener {
 	private void initLayouts() {
 		mainLayout = new VerticalLayout();
 		mainLayout.setMargin(true);
-//		mainLayout.setSpacing(true);
 		setContent(mainLayout);
 
 		Label lblAuction = new Label("Auction");
@@ -746,6 +766,37 @@ public class AuctionUI extends UI implements IBroadcastListener {
 		((Label) grLayout.getComponent(1, 2)).setValue(response.getState());
 		((Label) grLayout.getComponent(1, 3)).setValue(response.getFinish());
 		((Label) grLayout.getComponent(1, 4)).setValue(response.getOwner());
+
+		if (!response.getState().equalsIgnoreCase("ACTIVE")) {
+			((Label) grLayout.getComponent(1, 5)).setValue("Trades is finished");
+		} else {
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+			Date finishDate = null;
+			try {
+				finishDate = dateFormat.parse(response.getFinish());
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			long remainingMillis = finishDate.getTime() - (new Date()).getTime();
+	
+			long days = TimeUnit.DAYS.convert
+					(remainingMillis, TimeUnit.MILLISECONDS);
+			remainingMillis -= days * 24 * 60 * 60 * 1000;
+			long hours = TimeUnit.HOURS.convert
+					(remainingMillis, TimeUnit.MILLISECONDS);
+			remainingMillis -= hours * 60 * 60 * 1000;
+			long minutes = TimeUnit.MINUTES.convert
+					(remainingMillis, TimeUnit.MILLISECONDS);
+			remainingMillis -= minutes * 60 * 1000;
+			long seconds = TimeUnit.SECONDS.convert
+					(remainingMillis, TimeUnit.MILLISECONDS);
+			
+			((Label) grLayout.getComponent(1, 5)).setValue(
+					String.valueOf(days) + " days, " +
+					String.valueOf(hours) + " hours, " +
+					String.valueOf(minutes) + " minutes and " +
+					String.valueOf(seconds) + " seconds");
+		}
 		
 		((Label) grLayout.getComponent(1, 6)).setValue(response.getDescription());
 		((Label) grLayout.getComponent(1, 7)).setValue(response.getPrice());
