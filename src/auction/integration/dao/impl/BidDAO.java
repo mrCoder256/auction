@@ -1,19 +1,12 @@
 package auction.integration.dao.impl;
 
-import java.util.Collection;
-import java.util.List;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 
 import auction.integration.dao.AbstractDAO;
-import auction.integration.dao.DAOFactory;
-import auction.integration.dao.PostgreSQLDAOFactory;
 import auction.integration.domain.Bid;
-import auction.integration.domain.Lot;
 
 public class BidDAO<T> extends AbstractDAO<T> {
 
@@ -55,10 +48,10 @@ public class BidDAO<T> extends AbstractDAO<T> {
 			}
 		} catch (Exception e) {
 			log.error("An error occurred while searching for the bid with Id=" + param, e);//e.printStackTrace();
-			// Откат транзакции в случае ошибки
+			// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 			em.getTransaction().rollback();
 		} finally {
-			// Завершение работы с менеджером сущностей
+			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			em.close();
 		}
 		return (T) el;

@@ -63,12 +63,15 @@ public class AuctionUI extends UI implements IBroadcastListener {
 	private Table bidsTable;
 	private AuctionSEI port;
 
+	//TODO empty string?
 	private String userId = "";
 	private String userName = "";
 	private GridLayout grLayout;
 	private Button btnCancelTrades;
 	private Button btnNewBid;
 	private Label lblUser;
+	
+	private static int NO_LOT_IS_SELECTED = -1;
 
 	@Override
 	public void receiveBroadcast(final BroadcastType type, final Object smthNew) {
@@ -76,9 +79,7 @@ public class AuctionUI extends UI implements IBroadcastListener {
             @SuppressWarnings("unchecked")
 			@Override
             public void run() {
-				Object rowId = lotsTable.getValue(); 
-				int selectedLotId = Integer.parseInt((String) lotsTable
-						.getContainerProperty(rowId,"Code").getValue());
+				int selectedLotId = getCurLotId();
             	switch(type){
             		case NEW_LOT:
         				lotsTable.addItem(new Object[]{
@@ -89,13 +90,15 @@ public class AuctionUI extends UI implements IBroadcastListener {
         						lotsTable.size() + 1);
 						break;
 					case NEW_BID:
-						if (selectedLotId == Integer.parseInt(((BidFromService) smthNew)
-							.getLot())) {
-							bidsTable.addItem(new Object[]{
-	        						((BidFromService) smthNew).getBid(), 
-	        						((BidFromService) smthNew).getDate(), 
-	        						((BidFromService) smthNew).getBidder()}, 
-	        						bidsTable.size() + 1);
+						if (selectedLotId != NO_LOT_IS_SELECTED) {
+							if (selectedLotId == Integer
+									.parseInt(((BidFromService) smthNew).getLot())) {
+								bidsTable.addItem(new Object[]{
+		        						((BidFromService) smthNew).getBid(), 
+		        						((BidFromService) smthNew).getDate(), 
+		        						((BidFromService) smthNew).getBidder()}, 
+		        						bidsTable.size() + 1);
+							}
 						}
 						break;
 					case CHANGED_LOT_STATE:
@@ -109,15 +112,18 @@ public class AuctionUI extends UI implements IBroadcastListener {
 			                			((LotFromService) smthNew).getState());
 							}
 			            }
-			            if (selectedLotId == Integer.parseInt(((LotFromService) smthNew)
-								.getCode())) {
-			    			((Label) grLayout.getComponent(1, 2))
-			    					.setValue(((LotFromService) smthNew).getState());
-			    			((Label) grLayout.getComponent(1, 5))
-			    					.setValue("Trades is finished");
-			    			btnCancelTrades.setVisible(false);
-			    			btnNewBid.setVisible(false);
-			            }
+			            
+						if (selectedLotId != NO_LOT_IS_SELECTED) {
+							if (selectedLotId == Integer
+									.parseInt(((LotFromService) smthNew).getCode())) {
+				    			((Label) grLayout.getComponent(1, 2))
+				    					.setValue(((LotFromService) smthNew).getState());
+				    			((Label) grLayout.getComponent(1, 5))
+				    					.setValue("Trades is finished");
+				    			btnCancelTrades.setVisible(false);
+				    			btnNewBid.setVisible(false);
+				            }
+						}
 						break;
 					default:
 						break;
@@ -402,6 +408,7 @@ public class AuctionUI extends UI implements IBroadcastListener {
 		topHlayout.addComponent(lblUser);
 		topHlayout.addComponent(btnLogout);
 		topHlayout.setExpandRatio(lblAuction, 1);
+		//TODO set layout size in %, but not in px 
 		topHlayout.setWidth("1550px");
 		
 		mainLayout.addComponent(topHlayout);
@@ -536,11 +543,12 @@ public class AuctionUI extends UI implements IBroadcastListener {
 			                return;
 			            }
 			        	
-			        	/*
-			        	 * "����� ������" ������ ���� �������� �������. ��� ��������� �������,
-			        	 * ���������� �������������, ����� ������������ "������� �����" + 2 �������,
-			        	 * ��������� ���������� �������� ������ ��������� �����.
-			        	 */
+						/*
+						 * Время "конец торгов" должно быть будущим. Для
+						 * сравнения времени, введенного пользователем, нужно
+						 * использовать "текущее время" + 2 секунды, поскольку
+						 * выполнение операций займет некоторое время.
+						 */
 			        	Calendar curTimePlusTwoSec = Calendar.getInstance();
 			        	curTimePlusTwoSec.add(Calendar.SECOND, 2);
 			        	if (finishDateField.getValue().compareTo(curTimePlusTwoSec.getTime()) == -1){
@@ -556,15 +564,19 @@ public class AuctionUI extends UI implements IBroadcastListener {
 			        	lot.setPrice(String.valueOf(convertedValue).replaceAll(",", ".").replaceAll(" ", ""));
 			        	lot.setDescription(descriptionArea.getValue());
 
+			        	log.trace("New lot info:");
+			        	log.trace(lot.getName());
+			        	log.trace(lot.getFinish());
+			        	log.trace(lot.getPrice());
+			        	log.trace(lot.getDescription());
+			        	
 			        	LotFromService newlot = port.newLot(lot);
 			        	if (newlot == null) {
-			        		
+			        		//TODO lot is not added
 			        	} else {
-			        		//TODO �������� �������� �� ���������� ������ � �� ��� �����������
+				        	Broadcaster.broadcast(BroadcastType.NEW_LOT, newlot);
+				        	log.trace("broadcasted new lot");
 			        	}
-			        	
-			        	Broadcaster.broadcast(BroadcastType.NEW_LOT, newlot);
-			        	log.trace("broadcasted new lot");
 		        		newLotWindow.close();
 				    }
 				});
@@ -625,7 +637,7 @@ public class AuctionUI extends UI implements IBroadcastListener {
 		btnCancelTrades.addClickListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
 				int cancelledLotId = Integer.parseInt(((Label)grLayout.getComponent(1, 0))
-						.getValue()); 
+						.getValue());
 				log.trace("cancelling lot with id=" + cancelledLotId);
 				LotFromService cancelledLot = port.cencelTheLot(cancelledLotId);
 				Broadcaster.broadcast(BroadcastType.CHANGED_LOT_STATE, cancelledLot);
@@ -676,21 +688,22 @@ public class AuctionUI extends UI implements IBroadcastListener {
 				footerLayout.setSizeFull();
 				newBidLayout.addComponent(footerLayout);
 
-				/* 
-				 * currentMaxBid - ������� ������������ ������ �� ���.
-				 * ���� ������ ��� �� ����, �� currentMaxBid = ��������� ���� ����
+				/*
+				 * currentMaxBid - текущая максимальная ставка на лот. Если
+				 * ставок еще не было, то currentMaxBid = стартовой цене лота
 				 */
+				//log.trace(bidsTable.getItem(bidsTable.size()).getItemProperty("Bid").getValue());
+				
 				final float currentMaxBid = (bidsTable.size() != 0) ?
-					(float) bidsTable.getItem(bidsTable.size()).getItemProperty("Bid").getValue() : 
+					Float.valueOf((String) bidsTable.getItem(bidsTable.size())
+							.getItemProperty("Bid").getValue()) : 
 						Float.valueOf(((Label)grLayout.getComponent(1, 7)).getValue());
-				log.trace(currentMaxBid);	
+				log.trace("currentMaxBid=" + currentMaxBid);	
 
 				final TextField bidField = new TextField("Bid");
 				bidField.setConverter(Float.class);
-				bidField.setValue(String.valueOf(currentMaxBid + 1).replace(".", ","));
-//				bidField.setMaxLength(50);
+				bidField.setValue(String.valueOf(currentMaxBid + 1));
 				bidField.setHeight("25pt");
-//				bidField.setWidth("220px");
 				bidField.setRequired(true);
 				centralLayout.addComponent(bidField);	
 
@@ -799,18 +812,24 @@ public class AuctionUI extends UI implements IBroadcastListener {
 					String.valueOf(seconds) + " seconds");
 		}
 		
-		((Label) grLayout.getComponent(1, 6)).setValue(response.getDescription());
+		((Label) grLayout.getComponent(1, 6)).setValue(response
+				.getDescription());
 		((Label) grLayout.getComponent(1, 7)).setValue(response.getPrice());
 		
-		//���� ��� � Id=value ������������ ������������, �� �� ����� ���������� ����� �� ����
-		log.trace("selected lot is " + ((Label)grLayout.getComponent(1, 2)).getValue());
-		btnCancelTrades.setVisible((response.getOwner().equals(userName) &&
-				((Label)grLayout.getComponent(1, 2)).getValue().equals("ACTIVE")) ? true : false);
-		//���� ��� � Id=value ��� �������, �� �� ���� ����� ������� ������.
-		//������������ �� ����� ������� ������ �� ���� ���
-		btnNewBid.setVisible((((Label)grLayout.getComponent(1, 2)).getValue().equals("ACTIVE") &&
-			!((Label)grLayout.getComponent(1, 4)).getValue().equals(userName)) ? true : false);
-		
+		// ���� ��� � Id=value ������������ ������������, �� �� ����� ����������
+		// ����� �� ����
+		log.trace("selected lot is "
+				+ ((Label) grLayout.getComponent(1, 2)).getValue());
+		btnCancelTrades
+				.setVisible((response.getOwner().equals(userName) && ((Label) grLayout
+						.getComponent(1, 2)).getValue().equals("ACTIVE")) ? true
+						: false);
+		// ���� ��� � Id=value ��� �������, �� �� ���� ����� ������� ������.
+		// ������������ �� ����� ������� ������ �� ���� ���
+		btnNewBid.setVisible((((Label) grLayout.getComponent(1, 2)).getValue()
+				.equals("ACTIVE") && !((Label) grLayout.getComponent(1, 4))
+				.getValue().equals(userName)) ? true : false);
+
 		getBidsOnLot(value);
 	}
 	
@@ -824,6 +843,14 @@ public class AuctionUI extends UI implements IBroadcastListener {
 				bidsTable.addItem(new Object[]{el.getBid(), el.getDate(), el.getBidder()}, n++);
 			}
 		}
+	}
+	
+	private int getCurLotId() {
+		String curLotId = ((Label) grLayout.getComponent(1, 0)).getValue();
+		if (curLotId == null || curLotId.isEmpty()) {
+			return NO_LOT_IS_SELECTED;
+		}
+		return Integer.parseInt(curLotId);
 	}
 
 }

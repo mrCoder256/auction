@@ -1,27 +1,12 @@
 package auction.integration.dao.impl;
 
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
 
 import auction.integration.dao.AbstractDAO;
-import auction.integration.dao.DAOFactory;
-import auction.integration.domain.Bid;
 import auction.integration.domain.Lot;
-import auction.integration.domain.User;
 
 public class LotDAO<T> extends AbstractDAO<T> {
 
@@ -63,10 +48,10 @@ public class LotDAO<T> extends AbstractDAO<T> {
 			}	
 		} catch (Exception e) {
 			log.error("An error occurred while searching for the lot with Id=" + param, e);//e.printStackTrace();
-			// Откат транзакции в случае ошибки
+			// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 			em.getTransaction().rollback();
 		} finally {
-			// Завершение работы с менеджером сущностей
+			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			em.close();
 		}
 		return (T) el;

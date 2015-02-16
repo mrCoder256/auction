@@ -22,6 +22,10 @@ import auction.integration.domain.User;
 @WebService(targetNamespace = "http://service.auction/", endpointInterface = "auction.service.AuctionSEI", portName = "AuctionPort", serviceName = "AuctionService")
 public class Auction implements AuctionSEI {
 	
+	//TODO:
+	// 1. static constructor
+	// 2. "dd.MM.yyyy HH:mm:ss" -> static string
+	
 	private final DAOFactory FACTORY = DAOFactory.getDAOFactory(DAOFactory.POSTGRESQL); // ************************************
 	
 	public ArrayList<LotFromService> getLots(){
@@ -29,7 +33,7 @@ public class Auction implements AuctionSEI {
 		ArrayList<LotFromService> arr = new ArrayList<LotFromService>();
 		DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 		
-		for (Lot lot : list){
+		for (Lot lot : list) {
 			LotFromService el = new LotFromService();
 			el.setCode(String.valueOf(lot.getId()));
 			el.setName(lot.getLotName());
@@ -57,7 +61,7 @@ public class Auction implements AuctionSEI {
 		return arr;
 	}
 
-	public LotFromService newLot(LotFromService arg){		
+	public LotFromService newLot(LotFromService arg){	
 		Lot lot = new Lot();
 		Date parsedDate = null;
 		try {
@@ -92,7 +96,17 @@ public class Auction implements AuctionSEI {
 		arg.setCode(String.valueOf(id));
 		arg.setState("ACTIVE");
 		arg.setOwner(owner.getFname() + " " + owner.getLname());
-		
+
+
+    	System.out.println("New lot info:");
+    	System.out.println(arg.getCode());
+    	System.out.println(arg.getName());
+    	System.out.println(arg.getState());
+    	System.out.println(arg.getFinish());
+    	System.out.println(arg.getOwner());
+    	System.out.println(arg.getDescription());
+    	System.out.println(arg.getPrice());
+    	
 		return arg;
 	}
 	

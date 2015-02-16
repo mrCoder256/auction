@@ -1,7 +1,6 @@
 package auction.integration.dao.impl;
 
 
-import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -11,13 +10,13 @@ import javax.persistence.Query;
 import org.apache.log4j.Logger;
 
 import auction.integration.dao.AbstractDAO;
-import auction.integration.domain.Lot;
 import auction.integration.domain.User;
 
 public class UserDAO<T> extends AbstractDAO<T> {
 
 	private static final Logger log = Logger.getLogger(UserDAO.class);
-
+	//TODO private static strings for queries
+	
 	public UserDAO(EntityManagerFactory emf) {
 		super(emf);
 	}
@@ -53,10 +52,10 @@ public class UserDAO<T> extends AbstractDAO<T> {
 			}			
 		} catch (Exception e) {
 			log.error("An error occurred while searching for the user with Id=" + param, e);//e.printStackTrace();
-			// Откат транзакции в случае ошибки
+			// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 			em.getTransaction().rollback();
 		} finally {
-			// Завершение работы с менеджером сущностей
+			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			em.close();
 		}
 		return (T) el;
@@ -101,10 +100,10 @@ public class UserDAO<T> extends AbstractDAO<T> {
 			}
 		} catch (Exception e) {
 			log.error("An error occurred while searching for the user with login=" + login, e);//e.printStackTrace();
-			// Откат транзакции в случае ошибки
+			// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 			em.getTransaction().rollback();
 		} finally {
-			// Завершение работы с менеджером сущностей
+			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			em.close();
 		}
 		return (list.size() != 0) ? (User) list.get(0) : null;	
