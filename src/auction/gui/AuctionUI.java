@@ -116,6 +116,7 @@ public class AuctionUI extends UI implements IBroadcastListener {
 			    			((Label) grLayout.getComponent(1, 5))
 			    					.setValue("Trades is finished");
 			    			btnCancelTrades.setVisible(false);
+			    			btnNewBid.setVisible(false);
 			            }
 						break;
 					default:
