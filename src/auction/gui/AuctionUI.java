@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
-import org.openqa.selenium.remote.server.handler.html5.GetAppCacheStatus;
 
 import auction.gui.broadcaster.BroadcastType;
 import auction.gui.broadcaster.Broadcaster;
@@ -49,7 +48,6 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.BaseTheme;
 import com.vaadin.ui.themes.Reindeer;
-import com.vaadin.server.VaadinSession;
 
 @SuppressWarnings("serial")
 @Theme("auction")
@@ -57,7 +55,7 @@ import com.vaadin.server.VaadinSession;
 public class AuctionUI extends UI implements IBroadcastListener {
 
 	private static final Logger log = Logger.getLogger(AuctionUI.class);
-	
+
 	private VerticalLayout mainLayout;
 	private Table lotsTable;
 	private Table bidsTable;
@@ -69,7 +67,7 @@ public class AuctionUI extends UI implements IBroadcastListener {
 
 	private String userId;
 	private String userName;
-	
+
 	private static final int NO_LOT_IS_SELECTED = -1;
 	private static final String DATE_FORMAT = "dd.MM.yyyy HH:mm:ss";
 
@@ -193,11 +191,6 @@ public class AuctionUI extends UI implements IBroadcastListener {
 
 		btnLogin.addClickListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
-				log.trace(loginField.getValue() + "; length="
-						+ loginField.getValue().length());
-				log.trace(passField.getValue() + "; length="
-						+ passField.getValue().length());
-
 				loginField.setValidationVisible(false);
 				passField.setValidationVisible(false);
 				try {
@@ -244,76 +237,80 @@ public class AuctionUI extends UI implements IBroadcastListener {
 				footerLayout.setSizeFull();
 				regLayout.addComponent(footerLayout);
 
-				final TextField loginField = new TextField("Login");
-				loginField.setHeight("25pt");
-				loginField.setRequired(true);
-				loginField.addValidator(new StringLengthValidator(
+				final TextField loginRegField = new TextField("Login");
+				loginRegField.setHeight("25pt");
+				loginRegField.setRequired(true);
+				loginRegField.addValidator(new StringLengthValidator(
 						"The login must be 1-20 letters", 1, 20, true));
-				loginField.setRequiredError("The login must not be empty");
-				loginField.setImmediate(true);
-				centralLayout.addComponent(loginField);
+				loginRegField.setRequiredError("The login must not be empty");
+				loginRegField.setImmediate(true);
+				centralLayout.addComponent(loginRegField);
 
-				final PasswordField passField = new PasswordField("Password");
-				passField.setHeight("25pt");
-				passField.setRequired(true);
-				passField.addValidator(new StringLengthValidator(
+				final PasswordField passRegField = new PasswordField("Password");
+				passRegField.setHeight("25pt");
+				passRegField.setRequired(true);
+				passRegField.addValidator(new StringLengthValidator(
 						"The password must be 1-20 letters", 1, 20, true));
-				passField.setRequiredError("The password must not be empty");
-				passField.setImmediate(true);
-				centralLayout.addComponent(passField);
+				passRegField.setRequiredError("The password must not be empty");
+				passRegField.setImmediate(true);
+				centralLayout.addComponent(passRegField);
 
-				final TextField fNameField = new TextField("First name");
-				fNameField.setHeight("25pt");
-				fNameField.setRequired(true);
-				fNameField.addValidator(new StringLengthValidator(
+				final TextField fNameRegField = new TextField("First name");
+				fNameRegField.setHeight("25pt");
+				fNameRegField.setRequired(true);
+				fNameRegField.addValidator(new StringLengthValidator(
 						"First name must be 1-15 letters", 1, 15, true));
-				fNameField.setRequiredError("First name must not be empty");
-				fNameField.setImmediate(true);
-				centralLayout.addComponent(fNameField);
+				fNameRegField.setRequiredError("First name must not be empty");
+				fNameRegField.setImmediate(true);
+				centralLayout.addComponent(fNameRegField);
 
-				final TextField lNameField = new TextField("Last name");
-				lNameField.setHeight("25pt");
-				lNameField.setRequired(true);
-				lNameField.addValidator(new StringLengthValidator(
+				final TextField lNameRegField = new TextField("Last name");
+				lNameRegField.setHeight("25pt");
+				lNameRegField.setRequired(true);
+				lNameRegField.addValidator(new StringLengthValidator(
 						"Last name must be 1-15 letters", 1, 15, true));
-				lNameField.setRequiredError("Last name must not be empty");
-				lNameField.setImmediate(true);
-				centralLayout.addComponent(lNameField);
+				lNameRegField.setRequiredError("Last name must not be empty");
+				lNameRegField.setImmediate(true);
+				centralLayout.addComponent(lNameRegField);
 
 				final Window regWindow = new Window("Registration");
 
 				Button btnReg = new Button("Register");
 				btnReg.addClickListener(new Button.ClickListener() {
 					public void buttonClick(ClickEvent event) {
-						loginField.setValidationVisible(false);
-						passField.setValidationVisible(false);
-						fNameField.setValidationVisible(false);
-						lNameField.setValidationVisible(false);
+						loginRegField.setValidationVisible(false);
+						passRegField.setValidationVisible(false);
+						fNameRegField.setValidationVisible(false);
+						lNameRegField.setValidationVisible(false);
 						try {
-							loginField.validate();
-							passField.validate();
-							fNameField.validate();
-							lNameField.validate();
+							loginRegField.validate();
+							passRegField.validate();
+							fNameRegField.validate();
+							lNameRegField.validate();
 
 							UserFrowService user = new UserFrowService();
-							user.setLogin(loginField.getValue());
-							user.setPassword(passField.getValue());
-							user.setFname(fNameField.getValue());
-							user.setLname(lNameField.getValue());
+							user.setLogin(loginRegField.getValue());
+							user.setPassword(passRegField.getValue());
+							user.setFname(fNameRegField.getValue());
+							user.setLname(lNameRegField.getValue());
 
 							if (port.registration(user) > 0) {
 								regWindow.close();
+								
+								loginField.setValue(loginRegField.getValue());
+								passField.setValue(passRegField.getValue());
+								
 								authWindow.setVisible(true);
 							} else {
-								// TODO current login already exist
+								Notification.show("Current login already exist.");
 							}
 						} catch (InvalidValueException e) {
 							Notification.show(e.getMessage());
 
-							loginField.setValidationVisible(true);
-							passField.setValidationVisible(true);
-							fNameField.setValidationVisible(true);
-							lNameField.setValidationVisible(true);
+							loginRegField.setValidationVisible(true);
+							passRegField.setValidationVisible(true);
+							fNameRegField.setValidationVisible(true);
+							lNameRegField.setValidationVisible(true);
 						}
 					}
 				});
@@ -367,7 +364,7 @@ public class AuctionUI extends UI implements IBroadcastListener {
 		btnLogout.addStyleName("btnLogout");
 		btnLogout.addClickListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
-				close();
+				// close();
 			}
 		});
 
@@ -376,7 +373,6 @@ public class AuctionUI extends UI implements IBroadcastListener {
 		topHlayout.addComponent(lblUser);
 		topHlayout.addComponent(btnLogout);
 		topHlayout.setExpandRatio(lblAuction, 1);
-		// TODO set layout size in %, but not in px
 		topHlayout.setWidth("1550px");
 
 		mainLayout.addComponent(topHlayout);
@@ -422,7 +418,7 @@ public class AuctionUI extends UI implements IBroadcastListener {
 		lotsTable.addContainerProperty("State", String.class, null);
 
 		lotsTable.setWidth("480px");
-		lotsTable.setPageLength(23);
+		lotsTable.setPageLength(24);
 		lotsTable.setSelectable(true);
 		lotsTable.setImmediate(true);
 
@@ -531,9 +527,8 @@ public class AuctionUI extends UI implements IBroadcastListener {
 						LotFromService lot = new LotFromService();
 						lot.setOwner(userId);
 						lot.setName(lotNameField.getValue());
-						lot.setFinish(new SimpleDateFormat(
-								DATE_FORMAT).format(finishDateField
-								.getValue().getTime()));
+						lot.setFinish(new SimpleDateFormat(DATE_FORMAT)
+								.format(finishDateField.getValue().getTime()));
 						lot.setPrice(String.valueOf(convertedValue)
 								.replaceAll(",", ".").replaceAll(" ", ""));
 						lot.setDescription(descriptionArea.getValue());
@@ -615,9 +610,7 @@ public class AuctionUI extends UI implements IBroadcastListener {
 				int cancelledLotId = Integer.parseInt(((Label) grLayout
 						.getComponent(1, 0)).getValue());
 				log.trace("cancelling lot with id=" + cancelledLotId);
-				LotFromService cancelledLot = port.cencelTheLot(cancelledLotId);
-				Broadcaster.broadcast(BroadcastType.CHANGED_LOT_STATE,
-						cancelledLot);
+				port.cencelTheLot(cancelledLotId);
 			}
 		});
 
@@ -764,8 +757,7 @@ public class AuctionUI extends UI implements IBroadcastListener {
 			((Label) grLayout.getComponent(1, 5))
 					.setValue("Trades is finished");
 		} else {
-			SimpleDateFormat dateFormat = new SimpleDateFormat(
-					DATE_FORMAT);
+			SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
 			Date finishDate = null;
 			try {
 				finishDate = dateFormat.parse(response.getFinish());

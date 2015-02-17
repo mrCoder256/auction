@@ -9,7 +9,7 @@ import auction.gui.broadcaster.Broadcaster;
 import auction.integration.dao.DAOFactory;
 import auction.integration.dao.impl.LotDAO;
 import auction.integration.domain.Lot;
-import auction.service.LotFromService;
+import auction.service.client.LotFromService;
 
 public class JobWithLot implements Job {
 

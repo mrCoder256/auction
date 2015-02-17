@@ -16,14 +16,11 @@ import org.quartz.SchedulerException;
 
 import auction.business_logic.TradesScheduler;
 import auction.integration.dao.DAOFactory;
-import auction.integration.dao.impl.BidDAO;
 import auction.integration.domain.Bid;
 import auction.integration.domain.Lot;
 import auction.integration.domain.User;
 
-@WebService(targetNamespace = "http://service.auction/",
-	endpointInterface = "auction.service.AuctionSEI",
-	portName = "AuctionPort", serviceName = "AuctionService")
+@WebService(targetNamespace = "http://service.auction/", endpointInterface = "auction.service.AuctionSEI", portName = "AuctionPort", serviceName = "AuctionService")
 public class Auction implements AuctionSEI {
 
 	private final static String DATA_FARMAT;
@@ -151,13 +148,13 @@ public class Auction implements AuctionSEI {
 		return info;
 	}
 
-	public LotFromService cencelTheLot(int lotId) {
+	public void cencelTheLot(int lotId) {
 		try {
-			return TradesScheduler.cancel(lotId);
+			TradesScheduler.cancel(lotId);
 		} catch (SchedulerException e) {
 			e.printStackTrace();
 		}
-		return null;
+		return;
 	}
 
 	public int registration(UserFrowService arg) {

@@ -21,8 +21,11 @@
     </xs:sequence>
   </xs:complexType>
 <xs:complexType name="cencelTheLotResponse">
+    <xs:sequence/>
+  </xs:complexType>
+<xs:complexType name="newLot">
     <xs:sequence>
-      <xs:element minOccurs="0" name="return" type="tns:lotFromService"/>
+      <xs:element minOccurs="0" name="arg0" type="tns:lotFromService"/>
     </xs:sequence>
   </xs:complexType>
 <xs:complexType name="lotFromService">
@@ -34,11 +37,6 @@
       <xs:element minOccurs="0" name="owner" type="xs:string"/>
       <xs:element minOccurs="0" name="price" type="xs:string"/>
       <xs:element minOccurs="0" name="state" type="xs:string"/>
-    </xs:sequence>
-  </xs:complexType>
-<xs:complexType name="newLot">
-    <xs:sequence>
-      <xs:element minOccurs="0" name="arg0" type="tns:lotFromService"/>
     </xs:sequence>
   </xs:complexType>
 <xs:complexType name="newLotResponse">

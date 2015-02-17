@@ -12,10 +12,12 @@ import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.quartz.impl.StdSchedulerFactory;
 
+import auction.gui.broadcaster.BroadcastType;
+import auction.gui.broadcaster.Broadcaster;
 import auction.integration.dao.DAOFactory;
 import auction.integration.dao.impl.LotDAO;
 import auction.integration.domain.Lot;
-import auction.service.LotFromService;
+import auction.service.client.LotFromService;
 
 public class TradesScheduler {
 
@@ -33,7 +35,7 @@ public class TradesScheduler {
         sched.start();
 	}
 	
-	public static LotFromService cancel(int lotId) throws SchedulerException {
+	public static void cancel(int lotId) throws SchedulerException {
         SchedulerFactory sf = new StdSchedulerFactory();
         Scheduler sched = sf.getScheduler();
         sched.unscheduleJob(new TriggerKey("trigger"+lotId, "group1"));
@@ -42,13 +44,16 @@ public class TradesScheduler {
 				.getLotDAO();
 		Lot lot = (Lot) DAO.find(lotId);
 		lot.setState("CANCELLED");
-		if (!DAO.update(lot))
-			return null;
+		if (!DAO.update(lot)) {
+			return;
+		}
 		
 		LotFromService changedLot = new LotFromService();
 		changedLot.setCode(String.valueOf(lot.getId()));
 		changedLot.setState(lot.getState());
+		Broadcaster.broadcast(BroadcastType.CHANGED_LOT_STATE,
+				changedLot);
 		
-		return changedLot;
+		return;
 	}
 }

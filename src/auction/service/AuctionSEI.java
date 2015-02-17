@@ -17,7 +17,7 @@ public interface AuctionSEI {
 
 	public LotFromService getLotInfo(int lotId);
 
-	public LotFromService cencelTheLot(int lotId);
+	public void cencelTheLot(int lotId);
 
 	public int registration(UserFrowService arg);
 
