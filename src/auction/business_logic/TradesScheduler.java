@@ -20,32 +20,25 @@ import auction.service.LotFromService;
 public class TradesScheduler {
 
 	public static void schedule(int lotId, Date finishTradesTime) throws SchedulerException {
-        SchedulerFactory sf = new StdSchedulerFactory("quartz.properties");
-        Scheduler sched = sf.getScheduler();
-        
-        System.out.println("setting");
-        
         JobDetail job = JobBuilder.newJob(JobWithLot.class)
             .withIdentity("job"+lotId, "group1").build();  
         job.getJobDataMap().put("lot", lotId);
         Trigger trigger = TriggerBuilder.newTrigger().withIdentity("trigger"+lotId, "group1")
         	.startAt(finishTradesTime).build();
-        sched.scheduleJob(job, trigger);
         
-        System.out.println("before start");
-        System.out.println(finishTradesTime);
+        SchedulerFactory sf = new StdSchedulerFactory("quartz.properties");
+        Scheduler sched = sf.getScheduler();
+        sched.scheduleJob(job, trigger);
         
         sched.start();
 	}
 	
 	public static LotFromService cancel(int lotId) throws SchedulerException {
-        System.out.println("cancelling");
-        
         SchedulerFactory sf = new StdSchedulerFactory();
         Scheduler sched = sf.getScheduler();
         sched.unscheduleJob(new TriggerKey("trigger"+lotId, "group1"));
         
-		LotDAO DAO = (LotDAO) DAOFactory.getDAOFactory(DAOFactory.POSTGRESQL)
+		LotDAO<?> DAO = (LotDAO<?>) DAOFactory.getDAOFactory(DAOFactory.POSTGRESQL)
 				.getLotDAO();
 		Lot lot = (Lot) DAO.find(lotId);
 		lot.setState("CANCELLED");

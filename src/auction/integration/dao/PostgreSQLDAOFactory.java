@@ -18,7 +18,6 @@ public class PostgreSQLDAOFactory extends DAOFactory {
 	private static final Logger log = Logger.getLogger(PostgreSQLDAOFactory.class);
 
 	private PostgreSQLDAOFactory() {	
-		//свойства для подключения к базе данных
 		Properties props = new Properties();
 
 		props.put("javax.persistence.jdbc.driver", "org.postgresql.Driver");		
@@ -42,7 +41,7 @@ public class PostgreSQLDAOFactory extends DAOFactory {
 		return new BidDAO(emf);
 	}
 	
-	public LotDAO<?> getLotDAO() {
+	public LotDAO getLotDAO() {
 		log.debug("Created LotDAO in PostgreSQLDAOFactory");
 		return new LotDAO(emf);
 	}

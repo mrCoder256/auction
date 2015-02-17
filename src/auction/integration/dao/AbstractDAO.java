@@ -22,7 +22,7 @@ public abstract class AbstractDAO<T> implements IGenericDAO<T> {
 		this.emf = emf;
 	}	
 	
-	protected abstract String createSelectQuery(); //н., SELECT * FROM Lot
+	protected abstract String createSelectQuery();
 	
 	public Collection<?> select() {
 		EntityManager em = null;
@@ -33,9 +33,7 @@ public abstract class AbstractDAO<T> implements IGenericDAO<T> {
 			return null;
 		}
 		
-		Bid el = new Bid();
 		List<?> list = null;
-		
 		try {
 			em.getTransaction().begin();
 			Query q = em.createQuery(createSelectQuery()); 
@@ -45,10 +43,10 @@ public abstract class AbstractDAO<T> implements IGenericDAO<T> {
 			log.debug("Selected all rows by " + this.getClass().getSimpleName());
 		} catch (Exception e) {
 			log.error("An error occurred while selecting rows by " + this.getClass().getSimpleName(), e);
-			// Откат транзакции в случае ошибки
+			// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 			em.getTransaction().rollback();
 		} finally {
-			// Завершение работы с менеджером сущностей
+			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			em.close();
 		}
 		return (Collection<?>) list;	
@@ -79,11 +77,11 @@ public abstract class AbstractDAO<T> implements IGenericDAO<T> {
 		} catch (Exception e) {
 			log.error("An error occurred while inserting entity with Id=" + newId + 
 				" by " + this.getClass().getSimpleName(), e);
-			// Откат транзакции в случае ошибки
+			// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 			newId = 0;
 			em.getTransaction().rollback();
 		} finally {
-			// Завершение работы с менеджером сущностей
+			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			em.close();
 		}
 		return newId;
@@ -115,11 +113,11 @@ public abstract class AbstractDAO<T> implements IGenericDAO<T> {
 		} catch (Exception e) {
 			log.error("An error occurred while updating entity with Id=" + getId(obj) + 
 				" by " + this.getClass().getSimpleName(), e);
-			// Откат транзакции в случае ошибки
+			// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 			successfully = false;
 			em.getTransaction().rollback();
 		} finally {
-			// Завершение работы с менеджером сущностей
+			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			em.close();
 		}
 		return successfully;
@@ -151,11 +149,11 @@ public abstract class AbstractDAO<T> implements IGenericDAO<T> {
 		} catch (Exception e) {
 			log.error("An error occurred while deleting entity with Id=" + getId(obj) + 
 				" by " + this.getClass().getSimpleName(), e);
-			// Откат транзакции в случае ошибки
+			// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 			successfully = false;
 			em.getTransaction().rollback();
 		} finally {
-			// Завершение работы с менеджером сущностей
+			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			em.close();
 		}
 		return successfully;
